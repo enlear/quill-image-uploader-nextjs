@@ -13,12 +13,28 @@ class ImageUploader {
 
         var toolbar = this.quill.getModule("toolbar");
         toolbar.addHandler("image", this.selectLocalImage.bind(this));
+        toolbar.addHandler("code-block", this.fixHighlighter.bind(this));
 
         this.handleDrop = this.handleDrop.bind(this);
         this.handlePaste = this.handlePaste.bind(this);
 
         this.quill.root.addEventListener("drop", this.handleDrop, false);
         this.quill.root.addEventListener("paste", this.handlePaste, false);
+
+    }
+
+    fixHighlighter() {
+        const range = this.quill.getSelection(true);
+        const formats = this.quill.getFormat(range);
+        // if its not a code-block yet, turn it into one.
+        if (!formats['code-block']) {
+            return this.quill.formatLine(range.index, range.length, 'code-block', 'user');
+        };
+
+        // if it was a code-block, and the user meant to remove it
+        this.quill.removeFormat(range.index, range.length, 'user');
+        // running it twise to remove colors
+        this.quill.removeFormat(range.index, range.length, 'user');
     }
 
     selectLocalImage() {
