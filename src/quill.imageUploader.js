@@ -14,6 +14,7 @@ class ImageUploader {
         var toolbar = this.quill.getModule("toolbar");
         toolbar.addHandler("image", this.selectLocalImage.bind(this));
         toolbar.addHandler("code-block", this.fixHighlighter.bind(this));
+        toolbar.addHandler("clean", this.clean.bind(this));
 
         this.handleDrop = this.handleDrop.bind(this);
         this.handlePaste = this.handlePaste.bind(this);
@@ -34,6 +35,14 @@ class ImageUploader {
         // if it was a code-block, and the user meant to remove it
         this.quill.removeFormat(range.index, range.length, 'user');
         // running it twise to remove colors
+        this.quill.removeFormat(range.index, range.length, 'user');
+    }
+
+    clean() {
+        const range = this.quill.getSelection(true);
+        const formats = this.quill.getFormat(range);
+        // running it twise to remove colors
+        this.quill.removeFormat(range.index, range.length, 'user');
         this.quill.removeFormat(range.index, range.length, 'user');
     }
 
