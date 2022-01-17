@@ -11,17 +11,73 @@ class ImageUploader {
                 "[Missing config] upload function that returns a promise is required"
             );
 
+        if (typeof this.options.newComment !== "function")
+            console.warn(
+                "[Missing config] newComment function that returns a promise is required"
+            );
+
+        if (typeof this.options.showComments !== "function")
+            console.warn(
+                "[Missing config] showComments function that returns a promise is required"
+            );
+
         var toolbar = this.quill.getModule("toolbar");
         toolbar.addHandler("image", this.selectLocalImage.bind(this));
         toolbar.addHandler("code-block", this.fixHighlighter.bind(this));
         toolbar.addHandler("clean", this.clean.bind(this));
+        toolbar.addHandler("underline", this.addComment.bind(this));
 
         this.handleDrop = this.handleDrop.bind(this);
         this.handlePaste = this.handlePaste.bind(this);
 
         this.quill.root.addEventListener("drop", this.handleDrop, false);
         this.quill.root.addEventListener("paste", this.handlePaste, false);
+        this.quill.on('text-change', this.renderComments.bind(this));
+    }
 
+    addComment() {
+        var range = this.quill.getSelection();
+
+        if (range && range.length > 0 && this.options.newComment) {
+            range.top = this.quill.getBounds(range.index, range.length).top
+            this.options.newComment(range, this.quill);
+        }
+        this.quill.theme.tooltip.hide();
+    }
+
+    calculateIndexChange(delta) {
+        var index = delta.ops[0].retain || 0;
+        const change = delta.changeLength();
+        return { index: index, change: change };
+    }
+
+    adjustIndex(currentIndex, indexDelta) {
+        if (indexDelta.change > 0 && currentIndex < indexDelta.index) {
+            // comment index is before the modified text and modification didn't shift content before its starting point
+            return currentIndex;
+        } else if (indexDelta.change < 0 && currentIndex < (indexDelta.index + indexDelta.change)) {
+            // code shifted before its starting point but the comment index is before the modified text
+            return currentIndex;
+        } else {
+            return currentIndex + indexDelta.change;
+        }
+    }
+
+    renderComments(delta, oldDelta, source) {
+        if (source === "user" && this.options.comments && Object.keys(this.options.comments()).length !== 0) {
+            var indexDelta = this.calculateIndexChange(delta);
+            var commentObjs = {};
+            for (const [key, value] of Object.entries((this.options.comments()))) {
+                var newIndex = this.adjustIndex(value.range.index, indexDelta);
+                var length = value.range.length;
+                if (newIndex > 0) {
+                    commentObjs[key] = { range: { index: newIndex, length: length, top: this.quill.getBounds(newIndex, length).top }, message: value.message };
+                }
+            }
+            if (this.options.showComments) {
+                this.options.showComments(commentObjs, this.quill);
+            }
+        }
     }
 
     fixHighlighter() {
