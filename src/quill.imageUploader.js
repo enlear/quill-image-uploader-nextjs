@@ -64,10 +64,10 @@ class ImageUploader {
     }
 
     renderComments(delta, oldDelta, source) {
-        if (source === "user" && this.options.comments && Object.keys(this.options.comments()).length !== 0) {
+        if (source === "user" && this.options.comments && Object.keys(this.options.comments(this.quill)).length !== 0) {
             var indexDelta = this.calculateIndexChange(delta);
             var commentObjs = {};
-            for (const [key, value] of Object.entries((this.options.comments()))) {
+            for (const [key, value] of Object.entries((this.options.comments(this.quill)))) {
                 var newIndex = this.adjustIndex(value.range.index, indexDelta);
                 var length = value.range.length;
                 if (newIndex > 0) {
