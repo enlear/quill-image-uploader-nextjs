@@ -67,11 +67,17 @@ class ImageUploader {
         if (Object.keys(this.options.comments(this.quill)).length !== 0) {
             var indexDelta = this.calculateIndexChange(delta);
             var commentObjs = {};
+            var topIncrement = 0;
             for (const [key, value] of Object.entries((this.options.comments(this.quill)))) {
                 var newIndex = this.adjustIndex(value.range.index, indexDelta);
                 var length = value.range.length;
+                var top = this.quill.getBounds(newIndex, length).top;
+                if(top >= this.quill.getLength()){
+                    top = this.quill.getLength() + topIncrement;
+                    topIncrement = topIncrement + 25;
+                }
                 if (newIndex > 0) {
-                    commentObjs[key] = { range: { index: newIndex, length: length, top: this.quill.getBounds(newIndex, length).top }, message: value.message };
+                    commentObjs[key] = { range: { index: newIndex, length: length, top: top }, message: value.message };
                 }
             }
             if (this.options.showComments) {
