@@ -32,69 +32,17 @@ class ImageUploader {
 
         this.quill.root.addEventListener("drop", this.handleDrop, false);
         this.quill.root.addEventListener("paste", this.handlePaste, false);
-
-        this.renderComments.bind(this);
-        const debouncedRenderComments = this.debounce((delta, oldDelta, source) => this.renderComments(delta, oldDelta, source), 2000);
-        this.quill.on('text-change', debouncedRenderComments.bind(this));
     }
 
     addComment() {
         var range = this.quill.getSelection();
+        var selectedText = this.quill.getText(range.index, range.length);
 
         if (range && range.length > 0 && this.options.newComment) {
             range.top = this.quill.getBounds(range.index, range.length).top
-            this.options.newComment(range, this.quill);
+            this.options.newComment(range, selectedText);
         }
         this.quill.theme.tooltip.hide();
-    }
-
-    calculateIndexChange(delta) {
-        var index = delta.ops[0].retain || 0;
-        const change = delta.changeLength();
-        return { index: index, change: change };
-    }
-
-    adjustIndex(currentIndex, indexDelta) {
-        if (indexDelta.change > 0 && currentIndex < indexDelta.index) {
-            // comment index is before the modified text and modification didn't shift content before its starting point
-            return currentIndex;
-        } else if (indexDelta.change < 0 && currentIndex < (indexDelta.index + indexDelta.change)) {
-            // code shifted before its starting point but the comment index is before the modified text
-            return currentIndex;
-        } else {
-            return currentIndex + indexDelta.change;
-        }
-    }
-
-    renderComments(delta, oldDelta, source) {
-        if (source === "user" && this.options.comments && Object.keys(this.options.comments()).length !== 0) {
-            var indexDelta = this.calculateIndexChange(delta);
-            var commentObjs = {};
-            var topIncrement = 0;
-            for (const [key, value] of Object.entries((this.options.comments(this.quill)))) {
-                var newIndex = this.adjustIndex(value.range.index, indexDelta);
-                var length = value.range.length;
-                var top = this.quill.getBounds(newIndex, 0).top;
-                if (newIndex >= this.quill.getLength()) {
-                    top = this.quill.getBounds(this.quill.getLength(), 0).top + topIncrement;
-                    topIncrement = topIncrement + 25;
-                }
-                if (newIndex > 0) {
-                    commentObjs[key] = { range: { index: newIndex, length: length, top: top }, message: value.message };
-                }
-            }
-            if (this.options.showComments) {
-                this.options.showComments(commentObjs, this.quill);
-            }
-        }
-    }
-
-    debounce(func, timeout = 300) {
-        let timer;
-        return (...args) => {
-            clearTimeout(timer);
-            timer = setTimeout(() => { func.apply(this, args); }, timeout);
-        };
     }
 
     fixHighlighter() {
