@@ -32,7 +32,10 @@ class ImageUploader {
 
         this.quill.root.addEventListener("drop", this.handleDrop, false);
         this.quill.root.addEventListener("paste", this.handlePaste, false);
-        this.quill.on('text-change', this.renderComments.bind(this));
+
+        this.renderComments.bind(this);
+        const debouncedRenderComments = this.debounce((delta, oldDelta, source) => this.renderComments(delta, oldDelta, source), 2000);
+        this.quill.on('text-change', debouncedRenderComments.bind(this));
     }
 
     addComment() {
@@ -64,16 +67,16 @@ class ImageUploader {
     }
 
     renderComments(delta, oldDelta, source) {
-        if (Object.keys(this.options.comments(this.quill)).length !== 0) {
+        if (source === "user" && this.options.comments && Object.keys(this.options.comments()).length !== 0) {
             var indexDelta = this.calculateIndexChange(delta);
             var commentObjs = {};
             var topIncrement = 0;
             for (const [key, value] of Object.entries((this.options.comments(this.quill)))) {
                 var newIndex = this.adjustIndex(value.range.index, indexDelta);
                 var length = value.range.length;
-                var top = this.quill.getBounds(newIndex, length).top;
-                if(top >= this.quill.getLength()){
-                    top = this.quill.getLength() + topIncrement;
+                var top = this.quill.getBounds(newIndex, 0).top;
+                if (newIndex >= this.quill.getLength()) {
+                    top = this.quill.getBounds(this.quill.getLength(), 0).top + topIncrement;
                     topIncrement = topIncrement + 25;
                 }
                 if (newIndex > 0) {
@@ -84,6 +87,14 @@ class ImageUploader {
                 this.options.showComments(commentObjs, this.quill);
             }
         }
+    }
+
+    debounce(func, timeout = 300) {
+        let timer;
+        return (...args) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => { func.apply(this, args); }, timeout);
+        };
     }
 
     fixHighlighter() {
