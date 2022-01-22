@@ -26,12 +26,21 @@ class ImageUploader {
         toolbar.addHandler("code-block", this.fixHighlighter.bind(this));
         toolbar.addHandler("clean", this.clean.bind(this));
         toolbar.addHandler("underline", this.addComment.bind(this));
+        toolbar.addHandler('link', this.toggleLink.bind(this));
 
         this.handleDrop = this.handleDrop.bind(this);
         this.handlePaste = this.handlePaste.bind(this);
 
         this.quill.root.addEventListener("drop", this.handleDrop, false);
         this.quill.root.addEventListener("paste", this.handlePaste, false);
+    }
+
+    toggleLink(formatTextToLink) {
+        if (formatTextToLink) {
+            this.quill.theme.tooltip.edit();
+        } else {
+            this.quill.theme.tooltip.edit('link', this.quill.getFormat().link);
+        }
     }
 
     addComment() {
