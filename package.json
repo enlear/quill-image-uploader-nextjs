@@ -1,6 +1,6 @@
 {
   "name": "@writergate/quill-image-uploader-nextjs",
-  "version": "0.1.8",
+  "version": "0.1.12",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/enlear/quill-image-uploader-nextjs.git"
@@ -58,5 +58,8 @@
   "bugs": {
     "url": "https://github.com/enlear/quill-image-uploader-nextjs/issues"
   },
-  "homepage": "https://github.com/enlear/quill-image-uploader-nextjs#readme"
+  "homepage": "https://github.com/enlear/quill-image-uploader-nextjs#readme",
+  "dependencies": {
+    "nanoid": "^4.0.2"
+  }
 }
