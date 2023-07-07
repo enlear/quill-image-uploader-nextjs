@@ -53,7 +53,12 @@ class ImageUploader {
       range.top = this.quill.getBounds(range.index, range.length).top;
       const selectedText = this.quill.getText(range.index, range.length);
       const commentBlotValue = { commentId };
-      this.quill.formatText(range, CommentBlot.blotName, commentBlotValue);
+      this.quill.formatText(
+        range,
+        CommentBlot.blotName,
+        commentBlotValue,
+        "user"
+      );
       this.options.newComment(range, selectedText, commentId);
     }
     this.quill.theme.tooltip.hide();
