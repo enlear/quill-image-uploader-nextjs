@@ -4,21 +4,21 @@ const InlineBlot = Quill.import("blots/inline");
 
 class CommentBlot extends InlineBlot {
   /**
-   *
-   * @param {{commentId:string}} value Object of commentId of the comment
-   * @returns
+   * @param {string} commentId The comment ID
    */
-  static create(value) {
+  static create(commentId) {
     const node = super.create();
     node.setAttribute("class", "ql-wg-comment-wrapper");
-    node.setAttribute("data-comment", value.commentId);
+    if (commentId) {
+      node.setAttribute("data-comment", commentId);
+    }
     return node;
   }
 }
 
-CommentBlot.blotName = "CommentBlot";
+CommentBlot.blotName = "commentBlot";
 CommentBlot.tagName = "div";
 
-Quill.register(CommentBlot);
+Quill.register({ "formats/commentBlot": CommentBlot });
 
 export default CommentBlot;
