@@ -23,8 +23,8 @@ class CommentBlot extends InlineBlot {
 }
 
 CommentBlot.blotName = "commentBlot";
-CommentBlot.tagName = "div";
+CommentBlot.tagName = "span";
 
-Quill.register({ "formats/commentBlot": CommentBlot });
+Quill.register(CommentBlot);
 
 export default CommentBlot;
