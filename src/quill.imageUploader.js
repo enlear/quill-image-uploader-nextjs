@@ -1,6 +1,5 @@
 import LoadingImage from "./blots/image.js";
 import CommentBlot from "./blots/comment.js";
-import GenerateRandomId from "./utils/nano-id.js";
 
 class ImageUploader {
   constructor(quill, options) {
@@ -46,14 +45,12 @@ class ImageUploader {
   }
 
   addComment() {
-    const commentId = GenerateRandomId();
     let range = this.quill.getSelection();
     if (range && range.length > 0 && this.options.newComment) {
       this.quill.history.userOnly = true;
       range.top = this.quill.getBounds(range.index, range.length).top;
       const selectedText = this.quill.getText(range.index, range.length);
-      this.quill.formatText(range, CommentBlot.blotName, { commentId }, "user");
-      this.options.newComment(range, selectedText, commentId);
+      this.options.newComment(range, selectedText);
     }
     this.quill.theme.tooltip.hide();
     this.quill.history.userOnly = true;
@@ -80,7 +77,6 @@ class ImageUploader {
 
   clean() {
     const range = this.quill.getSelection(true);
-    const formats = this.quill.getFormat(range);
     // running it twise to remove colors
     this.quill.removeFormat(range.index, range.length, "user");
     this.quill.removeFormat(range.index, range.length, "user");
@@ -236,5 +232,5 @@ class ImageUploader {
 }
 
 window.ImageUploader = ImageUploader;
+export const commentBlotName = CommentBlot.blotName;
 export default ImageUploader;
-export { CommentBlot, LoadingImage };
