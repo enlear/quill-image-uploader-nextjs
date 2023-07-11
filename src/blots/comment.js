@@ -7,8 +7,14 @@ const ATTRIBUTES = ["class", "data-comment"];
 class CommentBlot extends InlineBlot {
   static create(value) {
     const node = super.create();
-    node.setAttribute("class", value.class || "ql-wg-comment-wrapper");
-    node.setAttribute("data-comment", value["data-comment"] || value.commentId);
+    const commentId = value["data-comment"] || value.commentId;
+    if (commentId) {
+      node.setAttribute("class", value.class || "ql-wg-comment-wrapper");
+      node.setAttribute(
+        "data-comment",
+        value["data-comment"] || value.commentId
+      );
+    }
     return node;
   }
 
