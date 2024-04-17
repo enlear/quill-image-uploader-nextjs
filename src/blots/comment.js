@@ -14,6 +14,10 @@ class CommentBlot extends InlineBlot {
         "data-comment",
         value["data-comment"] || value.commentId
       );
+      node.setAttribute(
+        "data-suggestion",
+        value["data-suggestion"] || "false"
+      );
     }
     return node;
   }
