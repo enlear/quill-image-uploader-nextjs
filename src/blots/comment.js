@@ -2,7 +2,7 @@ import Quill from "quill";
 
 const InlineBlot = Quill.import("blots/inline");
 
-const ATTRIBUTES = ["class", "data-comment"];
+const ATTRIBUTES = ["class", "data-comment", "data-suggestion"];
 
 class CommentBlot extends InlineBlot {
   static create(value) {
@@ -14,10 +14,12 @@ class CommentBlot extends InlineBlot {
         "data-comment",
         value["data-comment"] || value.commentId
       );
-      node.setAttribute(
-        "data-suggestion",
-        value["data-suggestion"] || "false"
-      );
+      if (value["data-suggestion"] === "true") {
+        node.setAttribute(
+          "data-suggestion",
+          value["data-suggestion"]
+        );
+      }
     }
     return node;
   }
